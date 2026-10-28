@@ -2235,7 +2235,7 @@ vertical-align: -.125em;
 </section>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
-<div id="6ce63857" class="cell" data-execution_count="1">
+<div id="a3f4a1d5" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -2251,14 +2251,14 @@ vertical-align: -.125em;
 </section>
 <section id="carregando-a-base-pmc" class="level2">
 <h2 class="anchored" data-anchor-id="carregando-a-base-pmc">Carregando a base PMC</h2>
-<div id="70072814" class="cell" data-execution_count="2">
+<div id="7661d14e" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pmc <span class="op">=</span> pd.read_csv(<span class="st">&quot;https://github.com/padsInsper/202634-fa/releases/download/data/pmc_volume_uf.csv&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pmc[<span class="st">&quot;data&quot;</span>] <span class="op">=</span> pd.to_datetime(pmc[<span class="st">&quot;data&quot;</span>])</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="escolha-sua-uf" class="level2">
 <h2 class="anchored" data-anchor-id="escolha-sua-uf">Escolha sua UF</h2>
-<div id="55e540d0" class="cell" data-execution_count="3">
+<div id="25794c1c" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>MINHA_UF <span class="op">=</span> <span class="st">&quot;Santa Catarina&quot;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df_sf <span class="op">=</span> (</span>
@@ -2327,7 +2327,7 @@ vertical-align: -.125em;
 </section>
 <section id="análise-descritiva" class="level2">
 <h2 class="anchored" data-anchor-id="análise-descritiva">Análise descritiva</h2>
-<div id="be58f13d" class="cell" data-execution_count="4">
+<div id="f671ef97" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">4</span>))</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ax.plot(y, label<span class="op">=</span><span class="st">&quot;índice mensal&quot;</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>ax.plot(y.rolling(<span class="dv">12</span>).mean(), label<span class="op">=</span><span class="st">&quot;média móvel 12m&quot;</span>)</span>
@@ -2343,7 +2343,7 @@ vertical-align: -.125em;
 </div>
 </div>
 <p>A série tem tendência de alta clara (forte até 2014, queda em 2015-2016, volta a subir a partir de 2017, tombo em abril/2020 e recuperação). Por cima disso tem um padrão anual bem marcado, com pico todo dezembro.</p>
-<div id="c881384d" class="cell" data-execution_count="5">
+<div id="2703f5cd" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># média de cada mês, normalizada pela média do ano</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>aux <span class="op">=</span> df_sf.assign(ano<span class="op">=</span>df_sf.ds.dt.year, mes<span class="op">=</span>df_sf.ds.dt.month)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>aux[<span class="st">&quot;rel&quot;</span>] <span class="op">=</span> aux.y <span class="op">/</span> aux.groupby(<span class="st">&quot;ano&quot;</span>).y.transform(<span class="st">&quot;mean&quot;</span>)</span>
@@ -2361,7 +2361,7 @@ vertical-align: -.125em;
 <p>Dezembro fica uns 20% acima da média do ano (Natal + 13º). Fevereiro e junho são os meses mais fracos.</p>
 <section id="acf-e-pacf" class="level3">
 <h3 class="anchored" data-anchor-id="acf-e-pacf">ACF e PACF</h3>
-<div id="09696038" class="cell" data-execution_count="6">
+<div id="c4c9df1a" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> acf_pacf(serie, titulo):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="fl">3.5</span>))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    plot_acf(serie.dropna(), lags<span class="op">=</span><span class="dv">48</span>, ax<span class="op">=</span>ax[<span class="dv">0</span>], title<span class="op">=</span><span class="ss">f&quot;ACF - </span><span class="sc">{</span>titulo<span class="sc">}</span><span class="ss">&quot;</span>)</span>
@@ -2381,7 +2381,7 @@ vertical-align: -.125em;
 </section>
 <section id="diferenciação" class="level3">
 <h3 class="anchored" data-anchor-id="diferenciação">Diferenciação</h3>
-<div id="664972d6" class="cell" data-execution_count="7">
+<div id="8917934f" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>difs <span class="op">=</span> {</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;original&quot;</span>: y,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;diff(1)&quot;</span>: y.diff(),</span>
@@ -2408,7 +2408,7 @@ vertical-align: -.125em;
 <li><code>diff(12)</code> tira a sazonalidade e sobra a variação contra o mesmo mês do ano anterior, que oscila acima de zero (crescimento médio).</li>
 <li><code>diff(1) + diff(12)</code> fica centrada em zero.</li>
 </ul>
-<div id="8b24fa75" class="cell" data-execution_count="8">
+<div id="1602748c" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>acf_pacf(y.diff(<span class="dv">12</span>), <span class="st">&quot;diff(12)&quot;</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>acf_pacf(y.diff().diff(<span class="dv">12</span>), <span class="st">&quot;diff(1) + diff(12)&quot;</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -2432,7 +2432,7 @@ vertical-align: -.125em;
 <section id="testes-de-raiz-unitária" class="level2">
 <h2 class="anchored" data-anchor-id="testes-de-raiz-unitária">Testes de raiz unitária</h2>
 <p>ADF: H0 = tem raiz unitária. KPSS: H0 = é estacionária. Queremos ADF com p &lt; 0,05 e KPSS com p &gt; 0,05.</p>
-<div id="a5eb46fa" class="cell" data-execution_count="9">
+<div id="e9439565" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>linhas <span class="op">=</span> []</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> nome, s <span class="kw">in</span> difs.items():</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> s.dropna()</span>
@@ -2486,7 +2486,7 @@ vertical-align: -.125em;
 </div>
 <p>(o KPSS do statsmodels trava o p-valor entre 0,01 e 0,10)</p>
 <p>Original: não estacionária nos dois testes. Qualquer uma das diferenças já resolve, inclusive só a sazonal.</p>
-<div id="1c01215e" class="cell" data-execution_count="10">
+<div id="f04d6a2f" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;nsdiffs (sazonal):&quot;</span>, nsdiffs(y.values, period<span class="op">=</span><span class="dv">12</span>))</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;ndiffs na série original:&quot;</span>, ndiffs(y.values))</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;ndiffs depois da diff(12):&quot;</span>, ndiffs(y.diff(<span class="dv">12</span>).dropna().values))</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -2500,7 +2500,7 @@ ndiffs depois da diff(12): 0</code></pre>
 </section>
 <section id="modelagem" class="level2">
 <h2 class="anchored" data-anchor-id="modelagem">Modelagem</h2>
-<div id="7622b2f2" class="cell" data-execution_count="11">
+<div id="9ca561a2" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>sf <span class="op">=</span> StatsForecast(models<span class="op">=</span>[AutoARIMA(season_length<span class="op">=</span><span class="dv">12</span>)], freq<span class="op">=</span><span class="st">&quot;MS&quot;</span>)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sf.fit(df_sf)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2523,7 +2523,7 @@ AICc: 1360.9 | sigma: 3.38</code></pre>
 </section>
 <section id="diagnóstico-dos-resíduos" class="level2">
 <h2 class="anchored" data-anchor-id="diagnóstico-dos-resíduos">Diagnóstico dos resíduos</h2>
-<div id="51797ffb" class="cell" data-execution_count="12">
+<div id="64f319a6" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> pd.Series(modelo[<span class="st">&quot;residuals&quot;</span>], index<span class="op">=</span>y.index).iloc[<span class="dv">13</span>:]  <span class="co"># descarta o início (diferença sazonal)</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="fl">3.5</span>))</span>
@@ -2569,7 +2569,7 @@ AICc: 1360.9 | sigma: 3.38</code></pre>
 </div>
 </div>
 </div>
-<div id="c1f71c6c" class="cell" data-execution_count="13">
+<div id="671584fb" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res.<span class="bu">abs</span>().sort_values(ascending<span class="op">=</span><span class="va">False</span>).head(<span class="dv">5</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>ds
@@ -2585,7 +2585,7 @@ dtype: float64</code></pre>
 </section>
 <section id="previsão-24-meses-à-frente" class="level2">
 <h2 class="anchored" data-anchor-id="previsão-24-meses-à-frente">Previsão · 24 meses à frente</h2>
-<div id="f5235379" class="cell" data-execution_count="14">
+<div id="73c2389a" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>prev <span class="op">=</span> sf.predict(h<span class="op">=</span><span class="dv">24</span>, level<span class="op">=</span>[<span class="dv">80</span>, <span class="dv">95</span>])</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="fl">4.5</span>))</span>
@@ -2604,7 +2604,7 @@ dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="eaf3bac8" class="cell" data-execution_count="15">
+<div id="c9a2c697" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>prev[[<span class="st">&quot;ds&quot;</span>, <span class="st">&quot;AutoARIMA&quot;</span>, <span class="st">&quot;AutoARIMA-lo-95&quot;</span>, <span class="st">&quot;AutoARIMA-hi-95&quot;</span>]].iloc[[<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">11</span>, <span class="dv">17</span>, <span class="dv">23</span>]].<span class="bu">round</span>(<span class="dv">1</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <div>
@@ -2665,13 +2665,16 @@ dtype: float64</code></pre>
 </section>
 <section id="discussão" class="level2">
 <h2 class="anchored" data-anchor-id="discussão">Discussão</h2>
-<ol type="1">
-<li><p><strong>ACF/PACF da original sugeriram sazonalidade e tendência?</strong> Sim. ACF decaindo devagar indica tendência e os picos em 12/24/36 indicam sazonalidade anual. Bate com o gráfico de linha (alta de longo prazo + pico todo dezembro).</p></li>
-<li><p><strong>Diferenças e componentes AR/MA.</strong> O AutoARIMA aplicou só a diferença sazonal (D = 1, d = 0) e colocou drift para a tendência. Ficou ARIMA(2,0,1)(1,1,1)[12]. O SMA dava para ver no pico negativo do lag 12 da ACF da <code>diff(12)</code>, e a persistência dos primeiros lags combina com o AR. Os detalhes exatos (AR(2), SAR(1)) não dá para cravar só olhando os gráficos.</p></li>
-<li><p><strong>Resíduos são ruído branco?</strong> Mais ou menos. A sazonalidade foi bem capturada, mas o Ljung-Box rejeita por causa de choques grandes (pandemia, Copa de 2014) e cauda pesada. Uma dummy para 2020 provavelmente ajudaria.</p></li>
-<li><p><strong>Previsão razoável?</strong> Sim, mantém o formato sazonal, parte do último nível e segue a tendência recente. Os intervalos abrem com o horizonte, mais no segundo ano. O ponto fraco é que o drift supõe crescimento constante, então não pega uma recessão.</p></li>
-<li><p><strong>Outras UFs com SARIMA diferente.</strong> Estados do Norte/Centro-Oeste como Roraima, Amapá e Mato Grosso cresceram muito mais rápido e têm séries mais voláteis (amostra menor), então devem pedir d = 1 ou ter mais ruído. Estados agrícolas (MT, MS, GO) têm venda de veículos e máquinas ligada à safra, o que muda o padrão sazonal. Rio de Janeiro e DF cresceram pouco, com tendência fraca e mais sensíveis às crises. SC tem crescimento forte e sazonalidade bem regular, o que facilita o modelo.</p></li>
-</ol>
+<p><strong>1. O ACF/PACF da série original sugeriu sazonalidade? E tendência? Bate com o gráfico de linha?</strong></p>
+<p>Sim, mostrou as duas coisas. As barras do ACF vão diminuindo bem devagar, o que indica que a série vem subindo ao longo dos anos (tendência). Além disso, aparecem picos de 12 em 12 meses, o que mostra que um mês se parece com o mesmo mês do ano anterior (sazonalidade). Isso bate com o gráfico de linha: as vendas em SC crescem bastante desde 2004 e todo ano tem um pico em dezembro, por causa do Natal e do 13º.</p>
+<p><strong>2. Quantas diferenças o AutoARIMA aplicou? E os componentes AR/MA? Deu para ver no ACF/PACF?</strong></p>
+<p>O modelo escolhido foi o ARIMA(2,0,1)(1,1,1)[12] com drift. Ele aplicou só uma diferença, a sazonal (comparar cada mês com o mesmo mês do ano anterior), e nenhuma diferença mês a mês. Isso faz sentido porque os testes ADF e KPSS já mostraram que só a diferença sazonal deixa a série estável. A tendência de alta ficou por conta do drift, que é um crescimento médio por ano. Nos gráficos deu para ver uma parte disso: o pico negativo no lag 12 depois da diferença sazonal indica o termo MA sazonal, e as primeiras barras ainda altas mostram que um mês bom costuma ser seguido de outro mês bom, que é o que o AR captura. O número exato de termos eu não conseguiria acertar só olhando os gráficos, e por isso usei o AutoARIMA.</p>
+<p><strong>3. Os resíduos parecem white noise? Algum padrão sazonal remanescente?</strong></p>
+<p>Em boa parte, sim. No ACF dos resíduos não sobrou pico nos lags 12, 24 e 36, então o padrão de dezembro foi bem capturado pelo modelo. Mesmo assim, o teste de Ljung-Box deu p-valor abaixo de 0,05, ou seja, ainda sobra um pouco de padrão nos erros. Olhando os maiores erros, eles estão em março e abril de 2020 (começo da pandemia), julho de 2021 (reabertura) e junho de 2014 (Copa do Mundo). São eventos que nenhum modelo baseado só no passado conseguiria prever. Uma melhoria seria incluir uma variável indicando o período da pandemia.</p>
+<p><strong>4. A previsão pareceu razoável visualmente?</strong></p>
+<p>Sim. A previsão continua com o mesmo desenho dos anos anteriores, com pico em dezembro e queda em fevereiro, e começa no nível em que a série parou. Os intervalos de 80% e 95% vão ficando mais largos com o tempo, o que é esperado: prever o próximo mês é mais fácil do que prever daqui a dois anos. O ponto fraco é que o modelo supõe que o crescimento continua no mesmo ritmo, então não prevê uma crise ou uma desaceleração da economia.</p>
+<p><strong>5. Que outras UFs dariam um SARIMA bem diferente do seu (e por quê)?</strong></p>
+<p>Estados do Norte, como Roraima e Amapá, devem dar modelos bem diferentes. As vendas lá cresceram muito mais rápido que em SC e a série é mais instável, porque a economia é menor e qualquer mudança pesa mais. Estados agrícolas como Mato Grosso e Goiás também devem mudar, porque a venda de veículos e máquinas depende da safra e do crédito rural, e isso cria picos em outros meses além de dezembro. Já Rio de Janeiro e Distrito Federal cresceram pouco nos últimos anos e sentiram mais as crises, então a tendência seria mais fraca. Santa Catarina tem um crescimento forte e constante e um padrão anual bem regular, o que deixa a série mais fácil de modelar.</p>
 </section>
 
 </main>

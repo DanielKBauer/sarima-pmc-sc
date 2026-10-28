@@ -209,12 +209,22 @@ prev[["ds", "AutoARIMA", "AutoARIMA-lo-95", "AutoARIMA-hi-95"]].iloc[[0, 5, 11, 
 
 ## Discussão
 
-1. **ACF/PACF da original sugeriram sazonalidade e tendência?** Sim. ACF decaindo devagar indica tendência e os picos em 12/24/36 indicam sazonalidade anual. Bate com o gráfico de linha (alta de longo prazo + pico todo dezembro).
+**1. O ACF/PACF da série original sugeriu sazonalidade? E tendência? Bate com o gráfico de linha?**
 
-2. **Diferenças e componentes AR/MA.** O AutoARIMA aplicou só a diferença sazonal (D = 1, d = 0) e colocou drift para a tendência. Ficou ARIMA(2,0,1)(1,1,1)[12]. O SMA dava para ver no pico negativo do lag 12 da ACF da `diff(12)`, e a persistência dos primeiros lags combina com o AR. Os detalhes exatos (AR(2), SAR(1)) não dá para cravar só olhando os gráficos.
+Sim, mostrou as duas coisas. As barras do ACF vão diminuindo bem devagar, o que indica que a série vem subindo ao longo dos anos (tendência). Além disso, aparecem picos de 12 em 12 meses, o que mostra que um mês se parece com o mesmo mês do ano anterior (sazonalidade). Isso bate com o gráfico de linha: as vendas em SC crescem bastante desde 2004 e todo ano tem um pico em dezembro, por causa do Natal e do 13º.
 
-3. **Resíduos são ruído branco?** Mais ou menos. A sazonalidade foi bem capturada, mas o Ljung-Box rejeita por causa de choques grandes (pandemia, Copa de 2014) e cauda pesada. Uma dummy para 2020 provavelmente ajudaria.
+**2. Quantas diferenças o AutoARIMA aplicou? E os componentes AR/MA? Deu para ver no ACF/PACF?**
 
-4. **Previsão razoável?** Sim, mantém o formato sazonal, parte do último nível e segue a tendência recente. Os intervalos abrem com o horizonte, mais no segundo ano. O ponto fraco é que o drift supõe crescimento constante, então não pega uma recessão.
+O modelo escolhido foi o ARIMA(2,0,1)(1,1,1)[12] com drift. Ele aplicou só uma diferença, a sazonal (comparar cada mês com o mesmo mês do ano anterior), e nenhuma diferença mês a mês. Isso faz sentido porque os testes ADF e KPSS já mostraram que só a diferença sazonal deixa a série estável. A tendência de alta ficou por conta do drift, que é um crescimento médio por ano. Nos gráficos deu para ver uma parte disso: o pico negativo no lag 12 depois da diferença sazonal indica o termo MA sazonal, e as primeiras barras ainda altas mostram que um mês bom costuma ser seguido de outro mês bom, que é o que o AR captura. O número exato de termos eu não conseguiria acertar só olhando os gráficos, e por isso usei o AutoARIMA.
 
-5. **Outras UFs com SARIMA diferente.** Estados do Norte/Centro-Oeste como Roraima, Amapá e Mato Grosso cresceram muito mais rápido e têm séries mais voláteis (amostra menor), então devem pedir d = 1 ou ter mais ruído. Estados agrícolas (MT, MS, GO) têm venda de veículos e máquinas ligada à safra, o que muda o padrão sazonal. Rio de Janeiro e DF cresceram pouco, com tendência fraca e mais sensíveis às crises. SC tem crescimento forte e sazonalidade bem regular, o que facilita o modelo.
+**3. Os resíduos parecem white noise? Algum padrão sazonal remanescente?**
+
+Em boa parte, sim. No ACF dos resíduos não sobrou pico nos lags 12, 24 e 36, então o padrão de dezembro foi bem capturado pelo modelo. Mesmo assim, o teste de Ljung-Box deu p-valor abaixo de 0,05, ou seja, ainda sobra um pouco de padrão nos erros. Olhando os maiores erros, eles estão em março e abril de 2020 (começo da pandemia), julho de 2021 (reabertura) e junho de 2014 (Copa do Mundo). São eventos que nenhum modelo baseado só no passado conseguiria prever. Uma melhoria seria incluir uma variável indicando o período da pandemia.
+
+**4. A previsão pareceu razoável visualmente?**
+
+Sim. A previsão continua com o mesmo desenho dos anos anteriores, com pico em dezembro e queda em fevereiro, e começa no nível em que a série parou. Os intervalos de 80% e 95% vão ficando mais largos com o tempo, o que é esperado: prever o próximo mês é mais fácil do que prever daqui a dois anos. O ponto fraco é que o modelo supõe que o crescimento continua no mesmo ritmo, então não prevê uma crise ou uma desaceleração da economia.
+
+**5. Que outras UFs dariam um SARIMA bem diferente do seu (e por quê)?**
+
+Estados do Norte, como Roraima e Amapá, devem dar modelos bem diferentes. As vendas lá cresceram muito mais rápido que em SC e a série é mais instável, porque a economia é menor e qualquer mudança pesa mais. Estados agrícolas como Mato Grosso e Goiás também devem mudar, porque a venda de veículos e máquinas depende da safra e do crédito rural, e isso cria picos em outros meses além de dezembro. Já Rio de Janeiro e Distrito Federal cresceram pouco nos últimos anos e sentiram mais as crises, então a tendência seria mais fraca. Santa Catarina tem um crescimento forte e constante e um padrão anual bem regular, o que deixa a série mais fácil de modelar.
