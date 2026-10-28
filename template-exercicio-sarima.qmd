@@ -1,0 +1,220 @@
+---
+title: "Exercício: SARIMA no comércio varejista brasileiro"
+subtitle: "UF: Santa Catarina"
+author: "Daniel Bauer"
+lang: pt-BR
+format:
+  html:
+    toc: true
+    code-fold: false
+    embed-resources: true
+execute:
+  warning: false
+jupyter: python3
+---
+
+## Sobre o exercício
+
+Base: PMC (Pesquisa Mensal do Comércio) do IBGE, índice de volume de vendas no comércio varejista ampliado, mensal desde jan/2004, base 2022 = 100, sem ajuste sazonal. UF escolhida: **Santa Catarina**.
+
+## Setup
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from statsmodels.tsa.stattools import adfuller, kpss
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.stats.diagnostic import acorr_ljungbox
+
+from statsforecast import StatsForecast
+from statsforecast.models import AutoARIMA
+from statsforecast.arima import ndiffs, nsdiffs, arima_string
+```
+
+## Carregando a base PMC
+
+```{python}
+pmc = pd.read_csv("https://github.com/padsInsper/202634-fa/releases/download/data/pmc_volume_uf.csv")
+pmc["data"] = pd.to_datetime(pmc["data"])
+```
+
+## Escolha sua UF
+
+```{python}
+MINHA_UF = "Santa Catarina"
+
+df_sf = (
+    pmc.query("uf == @MINHA_UF")
+    .rename(columns={"uf": "unique_id", "data": "ds", "volume_idx": "y"})
+    [["unique_id", "ds", "y"]]
+    .reset_index(drop=True)
+)
+
+y = df_sf.set_index("ds")["y"]
+print(len(y), "meses, de", y.index.min().date(), "a", y.index.max().date())
+df_sf.head()
+```
+
+## Análise descritiva
+
+```{python}
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(y, label="índice mensal")
+ax.plot(y.rolling(12).mean(), label="média móvel 12m")
+ax.set_title("PMC varejo ampliado - Santa Catarina")
+ax.legend()
+plt.show()
+```
+
+A série tem tendência de alta clara (forte até 2014, queda em 2015-2016, volta a subir a partir de 2017, tombo em abril/2020 e recuperação). Por cima disso tem um padrão anual bem marcado, com pico todo dezembro.
+
+```{python}
+# média de cada mês, normalizada pela média do ano
+aux = df_sf.assign(ano=df_sf.ds.dt.year, mes=df_sf.ds.dt.month)
+aux["rel"] = aux.y / aux.groupby("ano").y.transform("mean")
+aux.query("ano < 2026").groupby("mes").rel.mean().plot(kind="bar", figsize=(8, 3), title="Índice / média do ano, por mês")
+plt.axhline(1, color="gray", ls="--")
+plt.show()
+```
+
+Dezembro fica uns 20% acima da média do ano (Natal + 13º). Fevereiro e junho são os meses mais fracos.
+
+### ACF e PACF
+
+```{python}
+def acf_pacf(serie, titulo):
+    fig, ax = plt.subplots(1, 2, figsize=(12, 3.5))
+    plot_acf(serie.dropna(), lags=48, ax=ax[0], title=f"ACF - {titulo}")
+    plot_pacf(serie.dropna(), lags=48, ax=ax[1], title=f"PACF - {titulo}")
+    plt.show()
+
+acf_pacf(y, "original")
+```
+
+ACF decaindo bem devagar (tendência / não estacionária) e com picos nos lags 12, 24, 36 (sazonalidade). PACF com lag 1 quase em 1.
+
+### Diferenciação
+
+```{python}
+difs = {
+    "original": y,
+    "diff(1)": y.diff(),
+    "diff(12)": y.diff(12),
+    "diff(1) + diff(12)": y.diff().diff(12),
+}
+
+fig, axes = plt.subplots(4, 1, figsize=(10, 8), sharex=True)
+for ax, (nome, s) in zip(axes, difs.items()):
+    ax.plot(s)
+    ax.set_title(nome, loc="left")
+plt.tight_layout()
+plt.show()
+```
+
+- `diff(1)` tira a tendência, mas o serrote anual continua.
+- `diff(12)` tira a sazonalidade e sobra a variação contra o mesmo mês do ano anterior, que oscila acima de zero (crescimento médio).
+- `diff(1) + diff(12)` fica centrada em zero.
+
+```{python}
+acf_pacf(y.diff(12), "diff(12)")
+acf_pacf(y.diff().diff(12), "diff(1) + diff(12)")
+```
+
+Na `diff(12)` a ACF ainda decai nos primeiros lags (persistência) e tem um pico negativo no lag 12, que sugere um MA sazonal. Na dupla diferença sobram picos negativos no lag 1 e no 12, cara de modelo airline (0,1,1)(0,1,1).
+
+## Testes de raiz unitária
+
+ADF: H0 = tem raiz unitária. KPSS: H0 = é estacionária. Queremos ADF com p < 0,05 e KPSS com p > 0,05.
+
+```{python}
+linhas = []
+for nome, s in difs.items():
+    s = s.dropna()
+    p_adf = adfuller(s, autolag="AIC")[1]
+    p_kpss = kpss(s, regression="c", nlags="auto")[1]
+    linhas.append({"série": nome, "ADF p-valor": round(p_adf, 4), "KPSS p-valor": round(p_kpss, 4)})
+pd.DataFrame(linhas)
+```
+
+(o KPSS do statsmodels trava o p-valor entre 0,01 e 0,10)
+
+Original: não estacionária nos dois testes. Qualquer uma das diferenças já resolve, inclusive só a sazonal.
+
+```{python}
+print("nsdiffs (sazonal):", nsdiffs(y.values, period=12))
+print("ndiffs na série original:", ndiffs(y.values))
+print("ndiffs depois da diff(12):", ndiffs(y.diff(12).dropna().values))
+```
+
+O `ndiffs` na série original dá 1, mas depois de tirar a diferença sazonal dá 0. Como o AutoARIMA decide primeiro a parte sazonal e depois a regular, a expectativa é D = 1 e d = 0.
+
+## Modelagem
+
+```{python}
+sf = StatsForecast(models=[AutoARIMA(season_length=12)], freq="MS")
+sf.fit(df_sf)
+
+modelo = sf.fitted_[0, 0].model_
+print(arima_string(modelo))
+print({k: round(float(v), 3) for k, v in modelo["coef"].items()})
+print("AICc:", round(modelo["aicc"], 1), "| sigma:", round(np.sqrt(modelo["sigma2"]), 2))
+```
+
+Modelo escolhido: **ARIMA(2,0,1)(1,1,1)[12] com drift**.
+
+- D = 1 e d = 0, como os testes indicaram. O drift faz o papel da tendência (crescimento médio ano contra ano).
+- AR(2) com ar1 + ar2 perto de 1: a variação anual é bem persistente (ciclo econômico).
+- SMA(1) perto de -0,86: sazonalidade quase fixa, bate com o pico negativo no lag 12 da ACF.
+
+## Diagnóstico dos resíduos
+
+```{python}
+res = pd.Series(modelo["residuals"], index=y.index).iloc[13:]  # descarta o início (diferença sazonal)
+
+fig, ax = plt.subplots(1, 3, figsize=(14, 3.5))
+ax[0].plot(res); ax[0].set_title("resíduos")
+plot_acf(res, lags=36, ax=ax[1], title="ACF resíduos")
+ax[2].hist(res, bins=30); ax[2].set_title("histograma")
+plt.show()
+
+acorr_ljungbox(res, lags=[12, 24], model_df=len(modelo["coef"]))
+```
+
+```{python}
+res.abs().sort_values(ascending=False).head(5)
+```
+
+A ACF não mostra mais pico sazonal (lags 12, 24, 36 ok), mas o Ljung-Box rejeita ruído branco (p < 0,01). Os maiores resíduos são mar-abr/2020 (início da pandemia), jul/2021 (reabertura), jun/2014 (Copa do Mundo) e set/2012. O histograma tem cauda mais longa para a esquerda, ou seja, as surpresas grandes são quedas.
+
+## Previsão · 24 meses à frente
+
+```{python}
+prev = sf.predict(h=24, level=[80, 95])
+
+fig, ax = plt.subplots(figsize=(10, 4.5))
+ax.plot(y["2018":], color="black", label="histórico")
+ax.fill_between(prev.ds, prev["AutoARIMA-lo-95"], prev["AutoARIMA-hi-95"], alpha=0.2, color="C0", label="IC 95%")
+ax.fill_between(prev.ds, prev["AutoARIMA-lo-80"], prev["AutoARIMA-hi-80"], alpha=0.4, color="C0", label="IC 80%")
+ax.plot(prev.ds, prev["AutoARIMA"], color="C0", label="previsão")
+ax.set_title("Previsão 24 meses - Santa Catarina")
+ax.legend(loc="upper left")
+plt.show()
+```
+
+```{python}
+prev[["ds", "AutoARIMA", "AutoARIMA-lo-95", "AutoARIMA-hi-95"]].iloc[[0, 5, 11, 17, 23]].round(1)
+```
+
+## Discussão
+
+1. **ACF/PACF da original sugeriram sazonalidade e tendência?** Sim. ACF decaindo devagar indica tendência e os picos em 12/24/36 indicam sazonalidade anual. Bate com o gráfico de linha (alta de longo prazo + pico todo dezembro).
+
+2. **Diferenças e componentes AR/MA.** O AutoARIMA aplicou só a diferença sazonal (D = 1, d = 0) e colocou drift para a tendência. Ficou ARIMA(2,0,1)(1,1,1)[12]. O SMA dava para ver no pico negativo do lag 12 da ACF da `diff(12)`, e a persistência dos primeiros lags combina com o AR. Os detalhes exatos (AR(2), SAR(1)) não dá para cravar só olhando os gráficos.
+
+3. **Resíduos são ruído branco?** Mais ou menos. A sazonalidade foi bem capturada, mas o Ljung-Box rejeita por causa de choques grandes (pandemia, Copa de 2014) e cauda pesada. Uma dummy para 2020 provavelmente ajudaria.
+
+4. **Previsão razoável?** Sim, mantém o formato sazonal, parte do último nível e segue a tendência recente. Os intervalos abrem com o horizonte, mais no segundo ano. O ponto fraco é que o drift supõe crescimento constante, então não pega uma recessão.
+
+5. **Outras UFs com SARIMA diferente.** Estados do Norte/Centro-Oeste como Roraima, Amapá e Mato Grosso cresceram muito mais rápido e têm séries mais voláteis (amostra menor), então devem pedir d = 1 ou ter mais ruído. Estados agrícolas (MT, MS, GO) têm venda de veículos e máquinas ligada à safra, o que muda o padrão sazonal. Rio de Janeiro e DF cresceram pouco, com tendência fraca e mais sensíveis às crises. SC tem crescimento forte e sazonalidade bem regular, o que facilita o modelo.
